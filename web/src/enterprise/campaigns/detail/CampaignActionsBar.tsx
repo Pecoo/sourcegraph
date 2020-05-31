@@ -15,21 +15,10 @@ interface Props {
         status: Pick<GQL.ICampaign['status'], 'state'>
     }
 
-    onClose: (closeChangesets: boolean) => Promise<void>
-    onDelete: (closeChangesets: boolean) => Promise<void>
-    onEdit: React.MouseEventHandler
     formID: string
 }
 
-export const CampaignActionsBar: React.FunctionComponent<Props> = ({
-    campaign,
-    previewingPatchSet,
-    mode,
-    onClose,
-    onDelete,
-    onEdit,
-    formID,
-}) => {
+export const CampaignActionsBar: React.FunctionComponent<Props> = ({ campaign, previewingPatchSet, mode, formID }) => {
     const showActionButtons = campaign && !previewingPatchSet && campaign.viewerCanAdminister
     const showSpinner = mode === 'saving' || mode === 'deleting' || mode === 'closing'
     const editingCampaign = mode === 'editing' || mode === 'saving'
