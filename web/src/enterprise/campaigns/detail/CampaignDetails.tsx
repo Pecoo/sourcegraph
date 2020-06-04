@@ -28,12 +28,15 @@ import { CampaignPatches } from './patches/CampaignPatches'
 import { PatchSetPatches } from './patches/PatchSetPatches'
 import { MinimalCampaign, MinimalPatchSet } from './CampaignArea'
 import { useObservable } from '../../../../../shared/src/util/useObservable'
+import { CampaignDescription } from './CampaignDescription'
+import { CampaignInfoBar } from './CampaignInfoBar'
+import { Timeline } from '../../../components/timeline/Timeline'
+import { Link } from 'react-router-dom'
 
 export type CampaignUIMode = 'viewing' | 'deleting' | 'closing'
 
 interface Props extends ThemeProps, ExtensionsControllerProps, PlatformContextProps, TelemetryProps {
     campaign: MinimalCampaign
-    authenticatedUser: Pick<GQL.IUser, 'id' | 'username' | 'avatarURL'>
     history: H.History
     location: H.Location
 
@@ -52,7 +55,6 @@ export const CampaignDetails: React.FunctionComponent<Props> = ({
     campaign,
     history,
     location,
-    authenticatedUser,
     isLightTheme,
     extensionsController,
     platformContext,
@@ -86,8 +88,6 @@ export const CampaignDetails: React.FunctionComponent<Props> = ({
         ])
     )
 
-    const author = campaign ? campaign.author : authenticatedUser
-
     const totalChangesetCount = campaign?.changesets.totalCount ?? 0
 
     const totalPatchCount = (campaign?.patches.totalCount ?? 0) + (patchSet?.patches.totalCount ?? 0)
@@ -96,106 +96,119 @@ export const CampaignDetails: React.FunctionComponent<Props> = ({
 
     return (
         <>
-            <PageTitle title={campaign ? campaign.name : 'New campaign'} />
-            <CampaignStatus campaign={campaign} afterRetry={afterRetry} history={history} />
-            <div className="card mt-2">
-                <div className="card-header">
-                    <strong>
-                        <UserAvatar user={author} className="icon-inline" /> {author.username}
-                    </strong>{' '}
-                    started <Timestamp date={campaign.createdAt} />
-                </div>
-                <div className="card-body">
-                    <Markdown
-                        dangerousInnerHTML={renderMarkdown(campaign.description || '_No description_')}
-                        history={history}
-                    />
-                </div>
-            </div>
-            {totalChangesetCount > 0 && (
-                <>
-                    <h3 className="mt-4 mb-2">Progress</h3>
-                    <CampaignBurndownChart
-                        changesetCountsOverTime={campaign.changesetCountsOverTime}
-                        history={history}
-                    />
-                </>
-            )}
-
-            {/* Only campaigns that have no patch set can add changesets manually. */}
-            {!campaign.patchSet && campaign.viewerCanAdminister && !campaign.closedAt && (
-                <>
-                    {totalChangesetCount === 0 && (
-                        <div className="mt-4 mb-2 alert alert-info e2e-campaign-get-started">
-                            Add a changeset to get started.
+            <PageTitle title={campaign.name} />
+            <div className="container">
+                <header>
+                    <h1 className="mb-1">{campaign.name}</h1>
+                    <CampaignInfoBar campaign={campaign} />
+                </header>
+                <Timeline className="mt-3">
+                    <CampaignDescription campaign={campaign} history={history} className="w-100" />
+                    <CampaignStatus campaign={campaign} afterRetry={afterRetry} history={history} className="mt-3" />
+                    {totalChangesetCount > 0 && (
+                        <div className="card mt-3 w-100 pr-4 pb-3">
+                            <CampaignBurndownChart
+                                changesetCountsOverTime={campaign.changesetCountsOverTime}
+                                history={history}
+                                className="card-body"
+                            />
                         </div>
                     )}
-                    <AddChangesetForm campaignID={campaign.id} onAdd={onAddChangeset} history={history} />
-                </>
-            )}
-
-            {totalChangesetCount + totalPatchCount > 0 && (
-                <>
-                    <h3 className="mt-4 d-flex align-items-end mb-0">
-                        {totalPatchCount > 0 && (
-                            <>
-                                {totalPatchCount} {pluralize('Patch', totalPatchCount, 'Patches')}
-                            </>
-                        )}
-                        {(totalChangesetCount > 0 || !!campaign) && totalPatchCount > 0 && (
-                            <span className="mx-1">/</span>
-                        )}
-                        {(totalChangesetCount > 0 || !!campaign) && (
-                            <>
-                                {totalChangesetCount} {pluralize('Changeset', totalChangesetCount)}
-                            </>
-                        )}{' '}
-                        {campaign && patchSet && (
-                            <CampaignDiffStat campaign={campaign} patchSet={patchSet} className="ml-2 mb-0" />
-                        )}
-                    </h3>
-                    {totalPatchCount > 0 &&
-                        (campaign ? (
-                            <CampaignPatches
-                                campaign={campaign}
-                                campaignUpdates={campaignUpdates}
-                                changesetUpdates={changesetUpdates}
-                                enablePublishing={!campaign.closedAt}
-                                queryPatchesFromCampaign={queryPatchesFromCampaign}
-                                queryPatchFileDiffs={queryPatchFileDiffs}
-                                history={history}
-                                location={location}
-                                isLightTheme={isLightTheme}
-                            />
-                        ) : (
-                            <PatchSetPatches
-                                patchSet={patchSet!}
-                                campaignUpdates={campaignUpdates}
-                                changesetUpdates={changesetUpdates}
-                                enablePublishing={false}
-                                queryPatchesFromPatchSet={queryPatchesFromPatchSet}
-                                queryPatchFileDiffs={queryPatchFileDiffs}
-                                history={history}
-                                location={location}
-                                isLightTheme={isLightTheme}
-                            />
-                        ))}
-                    {totalChangesetCount > 0 && (
-                        <CampaignChangesets
-                            campaign={campaign}
-                            changesetUpdates={changesetUpdates}
-                            campaignUpdates={campaignUpdates}
-                            queryChangesets={queryChangesets}
-                            history={history}
-                            location={location}
-                            isLightTheme={isLightTheme}
-                            extensionsController={extensionsController}
-                            platformContext={platformContext}
-                            telemetryService={telemetryService}
-                        />
+                </Timeline>
+            </div>
+            <nav className="my-3 border-top border-bottom py-2">
+                <div className="container d-flex align-items-center">
+                    <h3 className="font-weight-bold mb-0">Changesets</h3>
+                    <span>TODO(sqs) changeset filters go here</span>
+                    <div className="flex-1" />
+                    {campaign.viewerCanAdminister && (
+                        <>
+                            <Link to={`${campaign.url}/edit`} className="btn btn-outline-secondary mr-2">
+                                Add existing changeset
+                            </Link>
+                            <Link to={`${campaign.url}/edit`} className="btn btn-outline-primary">
+                                Upload new patches
+                            </Link>
+                        </>
                     )}
-                </>
-            )}
+                </div>
+            </nav>
+            <div className="container">
+                {/* Only campaigns that have no patch set can add changesets manually. */}
+                {!campaign.patchSet && campaign.viewerCanAdminister && !campaign.closedAt && (
+                    <>
+                        {totalChangesetCount === 0 && (
+                            <div className="mt-4 mb-2 alert alert-info e2e-campaign-get-started">
+                                Add a changeset to get started.
+                            </div>
+                        )}
+                        <AddChangesetForm campaignID={campaign.id} onAdd={onAddChangeset} history={history} />
+                    </>
+                )}
+
+                {totalChangesetCount + totalPatchCount > 0 && (
+                    <>
+                        <h3 className="mt-4 d-flex align-items-end mb-0">
+                            {totalPatchCount > 0 && (
+                                <>
+                                    {totalPatchCount} {pluralize('Patch', totalPatchCount, 'Patches')}
+                                </>
+                            )}
+                            {(totalChangesetCount > 0 || !!campaign) && totalPatchCount > 0 && (
+                                <span className="mx-1">/</span>
+                            )}
+                            {(totalChangesetCount > 0 || !!campaign) && (
+                                <>
+                                    {totalChangesetCount} {pluralize('Changeset', totalChangesetCount)}
+                                </>
+                            )}{' '}
+                            {campaign && patchSet && (
+                                <CampaignDiffStat campaign={campaign} patchSet={patchSet} className="ml-2 mb-0" />
+                            )}
+                        </h3>
+                        {totalPatchCount > 0 &&
+                            (campaign ? (
+                                <CampaignPatches
+                                    campaign={campaign}
+                                    campaignUpdates={campaignUpdates}
+                                    changesetUpdates={changesetUpdates}
+                                    enablePublishing={!campaign.closedAt}
+                                    queryPatchesFromCampaign={queryPatchesFromCampaign}
+                                    queryPatchFileDiffs={queryPatchFileDiffs}
+                                    history={history}
+                                    location={location}
+                                    isLightTheme={isLightTheme}
+                                />
+                            ) : (
+                                <PatchSetPatches
+                                    patchSet={patchSet!}
+                                    campaignUpdates={campaignUpdates}
+                                    changesetUpdates={changesetUpdates}
+                                    enablePublishing={false}
+                                    queryPatchesFromPatchSet={queryPatchesFromPatchSet}
+                                    queryPatchFileDiffs={queryPatchFileDiffs}
+                                    history={history}
+                                    location={location}
+                                    isLightTheme={isLightTheme}
+                                />
+                            ))}
+                        {totalChangesetCount > 0 && (
+                            <CampaignChangesets
+                                campaign={campaign}
+                                changesetUpdates={changesetUpdates}
+                                campaignUpdates={campaignUpdates}
+                                queryChangesets={queryChangesets}
+                                history={history}
+                                location={location}
+                                isLightTheme={isLightTheme}
+                                extensionsController={extensionsController}
+                                platformContext={platformContext}
+                                telemetryService={telemetryService}
+                            />
+                        )}
+                    </>
+                )}
+            </div>
         </>
     )
 }
