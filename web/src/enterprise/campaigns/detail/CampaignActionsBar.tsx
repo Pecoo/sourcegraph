@@ -8,26 +8,20 @@ import { CampaignUIMode } from './CampaignDetails'
 
 interface Props {
     mode: CampaignUIMode
-    previewingPatchSet: boolean
 
-    campaign?: Pick<GQL.ICampaign, 'name' | 'closedAt' | 'viewerCanAdminister'> & {
-        openChangesets: Pick<GQL.ICampaign['openChangesets'], 'totalCount'>
+    campaign: Pick<GQL.ICampaign, 'name' | 'closedAt' | 'viewerCanAdminister'> & {
         status: Pick<GQL.ICampaign['status'], 'state'>
     }
 
     formID: string
 }
 
-export const CampaignActionsBar: React.FunctionComponent<Props> = ({ campaign, previewingPatchSet, mode, formID }) => {
-    const showActionButtons = campaign && !previewingPatchSet && campaign.viewerCanAdminister
-    const showSpinner = mode === 'saving' || mode === 'deleting' || mode === 'closing'
-    const editingCampaign = mode === 'editing' || mode === 'saving'
+export const CampaignActionsBar: React.FunctionComponent<Props> = ({ campaign, mode, formID }) => {
+    const showActionButtons = campaign.viewerCanAdminister
 
     const campaignClosed = campaign?.closedAt
     const campaignProcessing = campaign ? campaign.status.state === GQL.BackgroundProcessState.PROCESSING : false
     const actionsDisabled = mode === 'deleting' || mode === 'closing' || campaignProcessing
-
-    const openChangesetsCount = campaign?.openChangesets.totalCount ?? 0
 
     let stateBadge: JSX.Element
 
@@ -55,75 +49,9 @@ export const CampaignActionsBar: React.FunctionComponent<Props> = ({ campaign, p
                     <Link to="/campaigns">Campaigns</Link> <span className="badge badge-info">Beta</span>
                 </span>
                 <span className="text-muted d-inline-block mx-2">/</span>
-                <span>{campaign?.name ?? 'New campaign'}</span>
+                <span>{campaign.name}</span>
             </h2>
-            <span className="flex-grow-1 d-flex justify-content-end align-items-center">
-                {showSpinner && <LoadingSpinner className="mr-2" />}
-                {campaign &&
-                    showActionButtons &&
-                    (editingCampaign ? (
-                        <>
-                            <button
-                                type="submit"
-                                form={formID}
-                                className="btn btn-primary mr-1"
-                                disabled={mode === 'saving'}
-                            >
-                                Save
-                            </button>
-                            <button
-                                type="reset"
-                                form={formID}
-                                className="btn btn-secondary"
-                                disabled={mode === 'saving'}
-                            >
-                                Cancel
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            {!campaignClosed && (
-                                <>
-                                    <button
-                                        type="button"
-                                        id="e2e-campaign-edit"
-                                        className="btn btn-secondary mr-1"
-                                        onClick={onEdit}
-                                        disabled={actionsDisabled}
-                                    >
-                                        Edit
-                                    </button>
-                                    <CloseDeleteCampaignPrompt
-                                        disabled={actionsDisabled}
-                                        disabledTooltip="Cannot close while campaign is being created"
-                                        message={
-                                            <p>
-                                                Close campaign <strong>{campaign.name}</strong>?
-                                            </p>
-                                        }
-                                        changesetsCount={openChangesetsCount}
-                                        buttonText="Close"
-                                        onButtonClick={onClose}
-                                        buttonClassName="btn-secondary mr-1"
-                                    />
-                                </>
-                            )}
-                            <CloseDeleteCampaignPrompt
-                                disabled={actionsDisabled}
-                                disabledTooltip="Cannot delete while campaign is being created"
-                                message={
-                                    <p>
-                                        Delete campaign <strong>{campaign.name}</strong>?
-                                    </p>
-                                }
-                                changesetsCount={openChangesetsCount}
-                                buttonText="Delete"
-                                onButtonClick={onDelete}
-                                buttonClassName="btn-danger"
-                            />
-                        </>
-                    ))}
-            </span>
+            <span className="flex-grow-1 d-flex justify-content-end align-items-center">actions TODO(sqs)</span>
         </div>
     )
 }

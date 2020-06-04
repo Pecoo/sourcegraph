@@ -14,7 +14,7 @@ import {
 
 const history = H.createMemoryHistory()
 
-const { add } = storiesOf('Campaigns/UpdateCampaignPage', module).addDecorator(story => (
+const { add } = storiesOf('web/campaigns/UpdateCampaignPage', module).addDecorator(story => (
     <>
         <style>{webStyles}</style>
         <div className="theme-light container mt-3">{story()}</div>

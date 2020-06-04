@@ -149,19 +149,11 @@ const SAMPLE_ChangesetCounts: GQL.IChangesetCounts[] = [
     { date: '2020-01-06', open: 0, merged: 4, openApproved: 0, total: 4 },
 ] as GQL.IChangesetCounts[]
 
-const { add } = storiesOf('Campaigns/CampaignDetails', module).addDecorator(story => (
+const { add } = storiesOf('web/campaigns/CampaignDetails', module).addDecorator(story => (
     <>
         <style>{webStyles}</style>
         <div className="theme-light container mt-3">{story()}</div>
     </>
-))
-
-add('New form', () => (
-    <CampaignDetails
-        {...COMMON_PROPS}
-        authenticatedUser={{ id: 'u', username: 'alice', avatarURL: null }}
-        campaignID={undefined}
-    />
 ))
 
 add('With patches', () => (
@@ -169,27 +161,25 @@ add('With patches', () => (
         <CampaignDetails
             {...COMMON_PROPS}
             authenticatedUser={{ id: 'u', username: 'alice', avatarURL: null }}
-            campaignID="c"
-            _fetchCampaignById={() =>
-                of({
-                    ...COMMON_CAMPAIGN_FIELDS,
-                    patchSet: { id: 'p' },
-                    changesets: { totalCount: 1 },
-                    openChangesets: { totalCount: 1 },
-                    patches: { totalCount: 1 },
-                    changesetCountsOverTime: SAMPLE_ChangesetCounts,
-                    viewerCanAdminister: true as boolean,
-                    status: {
-                        completedCount: 0,
-                        pendingCount: 0,
-                        errors: [],
-                        state: GQL.BackgroundProcessState.COMPLETED,
-                    },
-                    closedAt: null,
-                })
-            }
-            _fetchPatchSetById={() => of(SAMPLE_PatchSet)}
+            campaign={{
+                ...COMMON_CAMPAIGN_FIELDS,
+                patchSet: { id: 'p' },
+                changesets: { totalCount: 1 },
+                openChangesets: { totalCount: 1 },
+                patches: { totalCount: 1 },
+                changesetCountsOverTime: SAMPLE_ChangesetCounts,
+                viewerCanAdminister: true as boolean,
+                status: {
+                    completedCount: 0,
+                    pendingCount: 0,
+                    errors: [],
+                    state: GQL.BackgroundProcessState.COMPLETED,
+                },
+                closedAt: null,
+            }}
+            fetchPatchSetById={() => of(SAMPLE_PatchSet)}
             queryPatchesFromCampaign={() => of(SAMPLE_PatchConnection)}
+            queryPatchesFromPatchSet={() => of(SAMPLE_PatchConnection)}
             queryPatchFileDiffs={() => of(SAMPLE_FileDiffConnection)}
             queryChangesets={() => of(SAMPLE_ExternalChangesetConnection)}
         />
@@ -200,27 +190,25 @@ add('Publishing', () => (
     <CampaignDetails
         {...COMMON_PROPS}
         authenticatedUser={{ id: 'u', username: 'alice', avatarURL: null }}
-        campaignID="c"
-        _fetchCampaignById={() =>
-            of({
-                ...COMMON_CAMPAIGN_FIELDS,
-                patchSet: { id: 'p' },
-                changesets: { totalCount: 1 },
-                openChangesets: { totalCount: 1 },
-                patches: { totalCount: 1 },
-                changesetCountsOverTime: SAMPLE_ChangesetCounts,
-                viewerCanAdminister: true as boolean,
-                status: {
-                    completedCount: 1,
-                    pendingCount: 1,
-                    errors: ['a'],
-                    state: GQL.BackgroundProcessState.PROCESSING,
-                },
-                closedAt: null,
-            })
-        }
-        _fetchPatchSetById={() => of(SAMPLE_PatchSet)}
+        campaign={{
+            ...COMMON_CAMPAIGN_FIELDS,
+            patchSet: { id: 'p' },
+            changesets: { totalCount: 1 },
+            openChangesets: { totalCount: 1 },
+            patches: { totalCount: 1 },
+            changesetCountsOverTime: SAMPLE_ChangesetCounts,
+            viewerCanAdminister: true as boolean,
+            status: {
+                completedCount: 1,
+                pendingCount: 1,
+                errors: ['a'],
+                state: GQL.BackgroundProcessState.PROCESSING,
+            },
+            closedAt: null,
+        }}
+        fetchPatchSetById={() => of(SAMPLE_PatchSet)}
         queryPatchesFromCampaign={() => of(SAMPLE_PatchConnection)}
+        queryPatchesFromPatchSet={() => of(SAMPLE_PatchConnection)}
         queryPatchFileDiffs={() => of(SAMPLE_FileDiffConnection)}
         queryChangesets={() => of(SAMPLE_ExternalChangesetConnection)}
     />

@@ -8,7 +8,7 @@ import { mergeMapTo } from 'rxjs/operators'
 
 const history = H.createMemoryHistory()
 
-const { add } = storiesOf('Campaigns/NewCampaignPage', module).addDecorator(story => (
+const { add } = storiesOf('web/campaigns/NewCampaignPage', module).addDecorator(story => (
     <>
         <style>{webStyles}</style>
         <div className="theme-light container mt-3">{story()}</div>
