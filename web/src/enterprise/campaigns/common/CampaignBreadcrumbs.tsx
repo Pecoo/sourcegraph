@@ -16,7 +16,7 @@ interface Props {
     formID: string
 }
 
-export const CampaignActionsBar: React.FunctionComponent<Props> = ({ campaign, mode, formID }) => {
+export const CampaignBreadcrumbs: React.FunctionComponent<Props> = ({ campaign, mode, formID }) => {
     const showActionButtons = campaign.viewerCanAdminister
 
     const campaignClosed = campaign?.closedAt

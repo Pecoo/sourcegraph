@@ -18,7 +18,6 @@ import { renderMarkdown } from '../../../../../shared/src/util/markdown'
 import { Markdown } from '../../../../../shared/src/components/Markdown'
 import { ThemeProps } from '../../../../../shared/src/theme'
 import { CampaignStatus } from './CampaignStatus'
-import { CampaignActionsBar } from './CampaignActionsBar'
 import { CampaignChangesets } from './changesets/CampaignChangesets'
 import { CampaignDiffStat } from './CampaignDiffStat'
 import { pluralize } from '../../../../../shared/src/util/strings'
@@ -93,14 +92,11 @@ export const CampaignDetails: React.FunctionComponent<Props> = ({
 
     const totalPatchCount = (campaign?.patches.totalCount ?? 0) + (patchSet?.patches.totalCount ?? 0)
 
-    const campaignFormID = 'campaign-form'
-
     // TODO(sqs): add retry
 
     return (
         <>
             <PageTitle title={campaign ? campaign.name : 'New campaign'} />
-            <CampaignActionsBar previewingPatchSet={!!patchSet} campaign={campaign} formID={campaignFormID} />
             <CampaignStatus campaign={campaign} afterRetry={afterRetry} history={history} />
             <div className="card mt-2">
                 <div className="card-header">

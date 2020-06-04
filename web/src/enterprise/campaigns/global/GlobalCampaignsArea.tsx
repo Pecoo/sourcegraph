@@ -1,18 +1,18 @@
 import React from 'react'
 import { RouteComponentProps, Switch, Route } from 'react-router'
 import { GlobalCampaignListPage } from './list/GlobalCampaignListPage'
-import { CampaignDetails } from '../detail/CampaignDetails'
 import { IUser } from '../../../../../shared/src/graphql/schema'
 import { withAuthenticatedUser } from '../../../auth/withAuthenticatedUser'
 import { ThemeProps } from '../../../../../shared/src/theme'
 import { ExtensionsControllerProps } from '../../../../../shared/src/extensions/controller'
 import { PlatformContextProps } from '../../../../../shared/src/platform/context'
 import { TelemetryProps } from '../../../../../shared/src/telemetry/telemetryService'
-import { CampaignUpdateSelection } from '../detail/CampaignUpdateSelection'
 import { CampaignsDotComPage } from './marketing/CampaignsDotComPage'
 import { CampaignsSiteAdminMarketingPage } from './marketing/CampaignsSiteAdminMarketingPage'
 import { CampaignsUserMarketingPage } from './marketing/CampaignsUserMarketingPage'
 import { DismissibleAlert } from '../../../components/DismissibleAlert'
+import { CampaignArea } from '../detail/CampaignArea'
+import { NewCampaignPage } from '../new/NewCampaignPage'
 
 interface Props
     extends RouteComponentProps<{}>,
@@ -59,18 +59,18 @@ export const GlobalCampaignsArea = withAuthenticatedUser<Props>(({ match, ...out
                         />
                         <Route
                             path={`${match.url}/new`}
-                            render={props => <CampaignDetails {...outerProps} {...props} />}
-                            exact={true}
-                        />
-                        <Route
-                            path={`${match.url}/update`}
-                            render={props => <CampaignUpdateSelection {...outerProps} {...props} />}
+                            render={props => <NewCampaignPage {...outerProps} {...props} />}
                             exact={true}
                         />
                         <Route
                             path={`${match.url}/:campaignID`}
                             render={({ match, ...props }: RouteComponentProps<{ campaignID: string }>) => (
-                                <CampaignArea {...outerProps} {...props} campaignID={match.params.campaignID} />
+                                <CampaignArea
+                                    {...outerProps}
+                                    {...props}
+                                    match={match}
+                                    campaignID={match.params.campaignID}
+                                />
                             )}
                         />
                     </Switch>

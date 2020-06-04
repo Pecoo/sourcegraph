@@ -23,6 +23,7 @@ import { repeatUntil } from '../../../../../shared/src/util/rxjs/repeatUntil'
 import { Route, Switch, RouteComponentProps } from 'react-router'
 import { CampaignDetails } from './CampaignDetails'
 import { UpdateCampaignPage } from './update/UpdateCampaignPage'
+import { CampaignBreadcrumbs } from './CampaignActionsBar'
 
 export interface MinimalCampaign
     extends Pick<
@@ -132,30 +133,33 @@ export const CampaignArea: React.FunctionComponent<Props> = ({
     ) : campaign === null ? (
         <HeroPage icon={AlertCircleIcon} title="Campaign not found" />
     ) : (
-        <Switch>
-            <Route path={match.url} exact={true}>
-                <CampaignDetails
-                    {...props}
-                    campaign={campaign}
-                    fetchPatchSetById={_fetchPatchSetById}
-                    queryPatchesFromCampaign={_queryPatchesFromCampaign}
-                    queryPatchesFromPatchSet={_queryPatchesFromPatchSet}
-                    queryPatchFileDiffs={_queryPatchFileDiffs}
-                    queryChangesets={_queryChangesets}
-                />
-            </Route>
-            <Route path={`${match.url}/edit`}>
-                <UpdateCampaignPage
-                    {...props}
-                    campaign={campaign}
-                    patchsetID={new URLSearchParams(location.search).get('patchset')}
-                    fetchPatchSetById={_fetchPatchSetById}
-                    queryPatchFileDiffs={_queryPatchFileDiffs}
-                    queryPatchesFromCampaign={queryPatchesFromCampaign}
-                    queryPatchesFromPatchSet={queryPatchesFromPatchSet}
-                    queryChangesets={queryChangesets}
-                />
-            </Route>
-        </Switch>
+        <>
+            <CampaignBreadcrumbs />
+            <Switch>
+                <Route path={match.url} exact={true}>
+                    <CampaignDetails
+                        {...props}
+                        campaign={campaign}
+                        fetchPatchSetById={_fetchPatchSetById}
+                        queryPatchesFromCampaign={_queryPatchesFromCampaign}
+                        queryPatchesFromPatchSet={_queryPatchesFromPatchSet}
+                        queryPatchFileDiffs={_queryPatchFileDiffs}
+                        queryChangesets={_queryChangesets}
+                    />
+                </Route>
+                <Route path={`${match.url}/edit`}>
+                    <UpdateCampaignPage
+                        {...props}
+                        campaign={campaign}
+                        patchsetID={new URLSearchParams(location.search).get('patchset')}
+                        fetchPatchSetById={_fetchPatchSetById}
+                        queryPatchFileDiffs={_queryPatchFileDiffs}
+                        queryPatchesFromCampaign={queryPatchesFromCampaign}
+                        queryPatchesFromPatchSet={queryPatchesFromPatchSet}
+                        queryChangesets={queryChangesets}
+                    />
+                </Route>
+            </Switch>
+        </>
     )
 }
